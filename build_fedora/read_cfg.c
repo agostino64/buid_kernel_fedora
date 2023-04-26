@@ -25,14 +25,6 @@ void call_bash(const char *command)
         }
 
         // Use non-blocking I/O to execute the command
-        int pipefd[2];
-        pipe(pipefd);
-
-        fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
-
-        dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[1]);
-
         execlp(path, path, "-c", command, (char *)NULL);
 
         // Si execlp retorna, significa que ha habido un error
@@ -61,7 +53,7 @@ void call_bash(const char *command)
                 // Timeout
                 break;
             } else {
-                n += read(STDIN_FILENO, buffer + n, sizeof(buffer) - n);
+                n += read(STDOUT_FILENO, buffer + n, sizeof(buffer) - n);
             }
         }
 
