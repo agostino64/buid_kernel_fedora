@@ -65,16 +65,16 @@ int rev_clean_kernel(char *input_clean_conf)
     cfg_exec("build_fedora/config.cfg", "CLEAN_BUILD");
     return -1;
   }
-  else
-    return -1;
-  if (strcmp(input_clean_conf, "h") == 0 || strcmp(input_clean_conf, "H") == 0)
+  else if (strcmp(input_clean_conf, "h") == 0 || strcmp(input_clean_conf, "H") == 0)
   {
     puts("Info: Elimina las compilaciones del kernel anterior");
     puts("Warn: Elimina la configuracion del kernel");
+    fflush(stdin);
     getchar();
+    return -1;
   }
-
-  return 1;
+  else
+    return -1;
 }
 
 int rev_config_kernel(char *input_conf)
