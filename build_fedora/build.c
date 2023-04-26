@@ -27,7 +27,7 @@ void clean_kernel(char *input_clean_conf)
 {
   clear_screen();
   printf("Write 'h' for help\n");
-  printf("\nEsta es su primera compilacion?");
+  printf("\nLimpiar antiguas compilaciones?");
   printf("\n[y/n/h]:"); bgets(input_clean_conf);
 }
 
