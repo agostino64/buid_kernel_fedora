@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 
 #define MAX_LINE_LENGTH 1024
@@ -17,14 +18,53 @@ void call_bash(const char *command)
         // Especificar el camino completo del archivo shell
         char *path = "/bin/bash";
 
-        // Ejecutar el archivo shell con los privilegios de usuario necesarios
-        setuid(getuid());
+        // Set the UID of the child process
+        if (setreuid(getuid(), getuid()) == -1) {
+            perror("Error al establecer el UID del proceso hijo");
+            exit(EXIT_FAILURE);
+        }
+
+        // Use non-blocking I/O to execute the command
+        int pipefd[2];
+        pipe(pipefd);
+
+        fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
+
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
+
         execlp(path, path, "-c", command, (char *)NULL);
 
         // Si execlp retorna, significa que ha habido un error
         perror("Error al ejecutar el comando");
         exit(EXIT_FAILURE);
     } else {  // Parent process
+        // Read the output of the command using non-blocking I/O
+        char buffer[4096];
+        int n = 0;
+
+        while (1) {
+            fd_set set;
+            FD_ZERO(&set);
+            FD_SET(STDIN_FILENO, &set);
+
+            struct timeval tv;
+            tv.tv_sec = 0;
+            tv.tv_usec = 1000;
+
+            int ret = select(STDIN_FILENO + 1, &set, NULL, NULL, &tv);
+
+            if (ret < 0) {
+                perror("Error al leer la salida del comando");
+                exit(EXIT_FAILURE);
+            } else if (ret == 0) {
+                // Timeout
+                break;
+            } else {
+                n += read(STDIN_FILENO, buffer + n, sizeof(buffer) - n);
+            }
+        }
+
         // Esperar a que el hijo termine
         int status;
         waitpid(pid, &status, 0);
