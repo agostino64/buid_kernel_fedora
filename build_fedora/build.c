@@ -14,7 +14,7 @@
 
 void clear_screen(void)
 {
-  system("clear");
+  call_bash("clear");
 }
 
 void bgets(char *str)
@@ -59,30 +59,32 @@ void edit_kernel(char *input_edit_conf)
 int rev_clean_kernel(char *input_clean_conf)
 {
   // for 'clean_kernel' function
-  if (strcmp(input_clean_conf, "y") == 0 || strcpy(input_clean_conf, "Y") == 0)
+  if (strcmp(input_clean_conf, "y") == 0 || strcmp(input_clean_conf, "Y") == 0)
   {
     puts("\nEliminando compilaciones antiguas");
-    system("sh build_fedora/clean_old_build.sh");
+    cfg_exec("build_fedora/config.cfg", "CLEAN_BUILD");
     return -1;
-  }
-  else if (strcmp(input_clean_conf, "h") == 0 || strcmp(input_clean_conf, "H") == 0)
-  {
-    puts("Info: Elimina las compilaciones del kernel anterior");
-    puts("Warn: Elimina la configuracion del kernel");
   }
   else
     return -1;
+  if (strcmp(input_clean_conf, "h") == 0 || strcmp(input_clean_conf, "H") == 0)
+  {
+    puts("Info: Elimina las compilaciones del kernel anterior");
+    puts("Warn: Elimina la configuracion del kernel");
+    getchar();
+  }
+
   return 1;
 }
 
 int rev_config_kernel(char *input_conf)
 {
   // for 'config_kernel' function     
-  if (strcmp(input_conf, "y") == 0 || strcpy(input_conf, "Y") == 0)
+  if (strcmp(input_conf, "y") == 0 || strcmp(input_conf, "Y") == 0)
   {
     puts("configuring kernel for stock configuration");
     puts("\nCompilando x86_64_fedora_defconfig");
-    system("sh build_fedora/make_config_fedora.sh");
+    cfg_exec("build_fedora/config.cfg", "STOCK_CFG");
     return -1;
   }
   else if (strcmp(input_conf, "h") == 0 || strcmp(input_conf, "H") == 0)
@@ -96,7 +98,7 @@ int rev_config_kernel(char *input_conf)
   {
     puts("configuring kernel for stock debug configuration");
     puts("\nCompilando x86_64_fedora-debug_defconfig");
-    system("sh build_fedora/make_config_fedora-debug.sh");
+    cfg_exec("build_fedora/config.cfg", "DEBUG_CFG");
     return -1;
   }
   return 1;
@@ -108,7 +110,7 @@ int rev_optimized_kernel(char *input_optimiced_conf)
   if (strcmp(input_optimiced_conf, "y") == 0 || strcmp(input_optimiced_conf, "Y") == 0)
   {
     puts("Optimizando el kernel (controladores minimos)");
-    system("sh build_fedora/optimized_defconfig.sh");
+    cfg_exec("build_fedora/config.cfg", "OPTIMIZE_CFG");
     return -1;
   }
   else if (strcmp(input_optimiced_conf, "h") == 0 || strcmp(input_optimiced_conf, "H") == 0)
@@ -129,7 +131,7 @@ int rev_edit_kernel(char *input_edit_conf)
   if (strcmp(input_edit_conf, "y") == 0 || strcmp(input_edit_conf, "Y") == 0)
   {
     puts("\nPreparando para editar la configuracion");
-    system("sh build_fedora/mod_defconfig.sh");
+    cfg_exec("build_fedora/config.cfg", "EDIT_KERNEL");
     return -1;
   }
   else
@@ -145,7 +147,7 @@ int rev_optimized_hw_build(char *make_conf)
     if (strcmp(make_conf, "y") == 0 || strcmp(make_conf, "Y") == 0)
     {
       puts("Compilando kernel optimizado para las instrucciones de la CPU local");
-      system("sh build_fedora/make_1.sh");
+      cfg_exec("build_fedora/config.cfg", "OPTIMIZE_HW_CFG");
     }
     else if (strcmp(make_conf, "h") == 0 || strcmp(make_conf, "H") == 0)
     {
@@ -155,7 +157,7 @@ int rev_optimized_hw_build(char *make_conf)
     else
     {
       puts("compilando kernel sin optimizacion para el hardware local");
-      system("sh build_fedora/make_2.sh");
+      cfg_exec("build_fedora/config.cfg", "NON_OPTIMIZE_HW_CFG");
     }
     return 1;
 }

@@ -9,3 +9,6 @@ int rev_config_kernel(char *input_conf);
 int rev_optimized_kernel(char *input_optimiced_conf);
 int rev_edit_kernel(char *input_edit_conf);
 int rev_optimized_hw_build(char *make_conf);
+
+void call_bash(const char *command);
+void cfg_exec(char *name_file, char *key_text);
