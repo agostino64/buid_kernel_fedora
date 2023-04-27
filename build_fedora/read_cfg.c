@@ -65,9 +65,6 @@ void call_bash(const char *command)
 
 void cfg_exec(char *name_file, char *key_text)
 {
-    char get_command[256] = "";
-    char get_command_sh[256] = "";
-    
     FILE *config_file = fopen(name_file, "r");
     if (!config_file) {
         printf("Failed to open config file\n");
@@ -75,10 +72,19 @@ void cfg_exec(char *name_file, char *key_text)
     }
     
     char line[MAX_LINE_LENGTH];
+    char get_command[MAX_LINE_LENGTH] = "";
+    char get_command_clang[MAX_LINE_LENGTH] = "CC=clang LLVM=1";
+    int clang = 0;
+    
     while (fgets(line, MAX_LINE_LENGTH, config_file)) {
         if (line[0] == '#') {
             // Skip comments
             continue;
+        }
+        if (line[0] == '%') {
+          // Use clang and skip '%'
+          continue;
+          clang = 1;
         }
         
         char key[MAX_LINE_LENGTH] = "";
@@ -91,7 +97,13 @@ void cfg_exec(char *name_file, char *key_text)
     }
     fclose(config_file);
 
-    strcpy(get_command_sh, "/bin/bash ");
-    strncat(get_command_sh, get_command, sizeof(get_command_sh) - strlen(get_command_sh) - 1);
-    call_bash(get_command_sh);
+    if (clang = 1)
+    {
+      snprintf(get_command_clang + strlen(get_command_clang), MAX_LINE_LENGTH - strlen(get_command_clang), " %s", get_command);
+      call_bash(get_command_clang);
+    }
+    else
+    {
+      call_bash(get_command);
+    }
 }
